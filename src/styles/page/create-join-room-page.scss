@@ -1,0 +1,15 @@
+@use "../variables.module";
+
+.create-join-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+
+  button {
+    width: 100%;
+    color: variables.$secondary;
+    background-color: variables.$primary;
+  }
+}

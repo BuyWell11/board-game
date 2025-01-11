@@ -1,0 +1,11 @@
+$primary: var(--foreground);
+$secondary: var(--background);
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+[data-theme='dark'] {
+  --background: #000000;
+  --foreground: #ffffff;
+}
