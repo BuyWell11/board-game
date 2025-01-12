@@ -1,36 +1,40 @@
-# Stage 1: Установка зависимостей и сборка проекта
-FROM node:22 AS builder
+# Этап 1: Сборка приложения
+FROM node:20-alpine AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы package.json и package-lock.json
+# Копируем package.json и package-lock.json
 COPY package*.json ./
 
 # Устанавливаем зависимости
 RUN npm install
 
-# Копируем весь проект
+# Копируем весь проект в контейнер
 COPY . .
 
-# Сборка проекта
+# Сборка Next.js приложения
 RUN npm run build
 
-# Stage 2: Подготовка к запуску в production
-FROM node:22
+# Этап 2: Запуск production-версии
+FROM node:20-alpine AS runner
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем только файлы сборки из предыдущего этапа
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
+# Копируем только необходимые файлы из builder
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 
-# Указываем порт, который слушает Next.js
+# Устанавливаем только production-зависимости
+RUN npm install --omit=dev
+
+# Указываем порт, который будет использоваться
 EXPOSE 3000
 
-# Запускаем сервер Next.js
-CMD ["npm", "start"]
+# Устанавливаем NODE_ENV в production
+ENV NODE_ENV=production
+
+# Запускаем приложение
+CMD ["npm", "run", "start"]
